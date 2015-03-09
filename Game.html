@@ -49,7 +49,7 @@
 		ImageProcessingLeftChoices = ["Increase Saturation", "Flip across x-axis", "Negative", "Decrease Saturation", "Flip across y-axis"]
 		PythonChoices = {"2 + 2 * 2 + 2": "8", "true == false": "false", "false == false": "true", "3**3": "27", "16.0 / 2.0": "8.0"}
 		
-		# ---- OnClick Binders ---- >>
+		# ---------------- OnClick Binders ------------------------------------- >>
 		# switch to python mode
 		def python_button_click(ev):
 			document.getElementById("mode").innerHTML = "Current Mode: Python"
@@ -87,8 +87,10 @@
 		# make guess in image processing mode
 		def UserImageProcessingGuess(ev):
 			alert("user making choice in image processing mode")
+			# TODO
+			# MISSING (should be similar to UserPythonGuess however)
 
-		# --------------------------- >>
+		# ---------------------------------------------------------------------- >>
 
 		# set buttons to switch modes
 		document['PythonMode'].bind('click', python_button_click)
@@ -102,8 +104,10 @@
 			random.shuffle(right_choices)
 			for i in range(5):
 				document.getElementById("L_Choice"+str(i+1)).innerHTML = left_choices[i]
+				# ADD HERE: change background colors to original
 			for i in range(5):
 				document.getElementById("R_Choice"+str(i+1)).innerHTML = right_choices[i]
+				# Same Thing Here
 			document['EnterClick'].bind('click', UserPythonGuess)
 			document['EnterClick'].unbind('click', UserImageProcessingGuess)
 			document.getElementById("hint").innerHTML = ""
@@ -120,6 +124,7 @@
 			document['EnterClick'].bind('click', UserImageProcessingGuess)
 			document['EnterClick'].unbind('click', UserPythonGuess)
 			document.getElementById("hint").innerHTML = ""
+			# Missing:
 			
 		# on start play Python Game
 		# the following is needed so that SetUpPythonGame properly unbinds it
