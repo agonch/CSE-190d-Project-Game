@@ -1,0 +1,130 @@
+<html>
+	<head>
+		<title>Learning Game</title>
+		<script type="text/javascript" src="../GuessMyNumber/libs/Brython221/brython.js"></script>
+		<link href="Game.css" type="text/css" rel="stylesheet" />
+	</head>
+	<body onload="brython()">
+		<h1>Teaching Python and Image Processing</h1>
+		<div style="margin-bottom: 10px;">
+			<fieldset style="width:600px">
+				<span id="mode">Current Mode: Python</span>
+				<button id="PythonMode">Python Teaching Mode</button>
+				<button id="ImageProcessingMode">Image Processing Mode</button>
+			</fieldset>
+		</div>
+		<div id="GameBoard">
+			<div id="LeftSide">
+				<div id="L_Choice1"></div>
+				<div id="L_Choice2"></div>
+				<div id="L_Choice3"></div>
+				<div id="L_Choice4"></div>
+				<div id="L_Choice5"></div>
+			</div>
+			<div id="RightSide">
+				<div id="R_Choice1"></div>
+				<div id="R_Choice2"></div>
+				<div id="R_Choice3"></div>
+				<div id="R_Choice4"></div>
+				<div id="R_Choice5"></div>
+			</div>
+		</div>
+		<div id="entermatches">
+			<fieldset style="width:160px">
+				<div>Match Left to Right</div>
+				<input id="L_Input" maxlength="1">
+				<span>--></span>
+				<input id="R_Input" maxlength="1">
+				<button id="EnterClick">Enter</button>
+			</fieldset>
+		</div>
+		<div id="hint"></div>
+		<script type="text/python">
+		from browser import document, alert, html
+		import browser.timer
+		import __random as random
+
+		# Global Values
+		GameMode = "ImageProcessingMode"
+		ImageProcessingLeftChoices = ["Increase Saturation", "Flip across x-axis", "Negative", "Decrease Saturation", "Flip across y-axis"]
+		PythonChoices = {"2 + 2 * 2 + 2": "8", "true == false": "false", "false == false": "true", "3**3": "27", "16.0 / 2.0": "8.0"}
+		
+		# ---- OnClick Binders ---- >>
+		# switch to python mode
+		def python_button_click(ev):
+			document.getElementById("mode").innerHTML = "Current Mode: Python"
+			document.getElementById("PythonMode").disabled = true;
+			document.getElementById("ImageProcessingMode").disabled = false
+			SetUpPythonGame()
+		
+		# switch to image processing mode
+		def ImageProcessing_button_click(ev):
+			document.getElementById("mode").innerHTML = "Current Mode: Image Processing"
+			document.getElementById("ImageProcessingMode").disabled = true
+			document.getElementById("PythonMode").disabled = false
+			SetUpImageProcessingGame()
+
+		# make guess in python mode
+		def UserPythonGuess(ev):
+			l_input = document["L_Input"].value
+			r_input = document["R_Input"].value
+			if l_input.isdigit() and r_input.isdigit() and int(l_input) > 0 and int(l_input) <= 5 and int(r_input) > 0 and int(r_input) <= 5:
+				# user input has legal digits
+				# check if correct guess was made
+				left = document.getElementById("L_Choice"+l_input)
+				right = document.getElementById("R_Choice"+r_input)
+				l_text = left.innerHTML
+				r_text = right.innerHTML
+				if PythonChoices[l_text] == r_text:
+					left.style.backgroundColor = "green"
+					right.style.backgroundColor = "#5C5CB5"
+					document.getElementById("hint").innerHTML = "Correct :)"
+				else:
+					document.getElementById("hint").innerHTML = "Incorrect :("
+			else:
+				document.getElementById("hint").innerHTML = "Invalid Input :/"
+		
+		# make guess in image processing mode
+		def UserImageProcessingGuess(ev):
+			alert("user making choice in image processing mode")
+
+		# --------------------------- >>
+
+		# set buttons to switch modes
+		document['PythonMode'].bind('click', python_button_click)
+		document['ImageProcessingMode'].bind('click', ImageProcessing_button_click)
+		document.getElementById("PythonMode").disabled = true
+		
+		def SetUpPythonGame():
+			left_choices = list(PythonChoices.keys())
+			right_choices = list(PythonChoices.values())
+			random.shuffle(left_choices)
+			random.shuffle(right_choices)
+			for i in range(5):
+				document.getElementById("L_Choice"+str(i+1)).innerHTML = left_choices[i]
+			for i in range(5):
+				document.getElementById("R_Choice"+str(i+1)).innerHTML = right_choices[i]
+			document['EnterClick'].bind('click', UserPythonGuess)
+			document['EnterClick'].unbind('click', UserImageProcessingGuess)
+			document.getElementById("hint").innerHTML = ""
+			
+		def SetUpImageProcessingGame():
+			for i in range(5):
+				l_c = document.getElementById("L_Choice"+str(i+1))
+				l_c.innerHTML = ""
+				l_c.style.backgroundColor = "#E6FFB4"
+			for i in range(5):
+				r_c = document.getElementById("R_Choice"+str(i+1))
+				r_c.innerHTML = ""
+				r_c.style.backgroundColor = "#99ADEB"
+			document['EnterClick'].bind('click', UserImageProcessingGuess)
+			document['EnterClick'].unbind('click', UserPythonGuess)
+			document.getElementById("hint").innerHTML = ""
+			
+		# on start play Python Game
+		# the following is needed so that SetUpPythonGame properly unbinds it
+		document['EnterClick'].bind('click', UserImageProcessingGuess)
+		SetUpPythonGame()
+		</script>
+	</body>
+</html>
