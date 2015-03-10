@@ -38,15 +38,28 @@
 				<button id="EnterClick">Enter</button>
 			</fieldset>
 		</div>
+		<div id="original_image"></div>
+		<div id="originalText"></div>
+		<div id="score">Score: 0 / 5</div>
+		<div id="time">Time:</div>
 		<div id="hint"></div>
 		<script type="text/python">
 		from browser import document, alert, html
-		import browser.timer
+		import time, browser.timer
 		import __random as random
 
 		# Global Values
+		timerCount = 0
+		interval_ = 0
+		score_ = 0
 		GameMode = "ImageProcessingMode"
-		ImageProcessingLeftChoices = ["Increase Saturation", "Flip across x-axis", "Negative", "Decrease Saturation", "Flip across y-axis"]
+		ImageProcessingChoices = {
+					"Increase Saturation": "<img src=\"flower_increase_sat.png\">",
+					"Flip across x-axis": "<img src=\"flower_flip_x.png\">",
+					"Negative": "<img src=\"flower_neg.png\">", 
+					"Decrease Saturation": "<img src=\"flower_decrease_sat.png\">",
+					"Flip across y-axis": "<img src=\"flower_flip_y.png\">"
+					}
 		PythonChoices = {"2 + 2 * 2 + 2": "8", "true == false": "false", "false == false": "true", "3**3": "27", "16.0 / 2.0": "8.0"}
 		
 		# ---------------- OnClick Binders ------------------------------------- >>
@@ -66,6 +79,26 @@
 
 		# make guess in python mode
 		def UserPythonGuess(ev):
+			MakeGuess(PythonChoices)
+
+		# make guess in image processing mode
+		def UserImageProcessingGuess(ev):
+			MakeGuess(ImageProcessingChoices)
+
+		# ---------------------------------------------------------------------- >>
+
+		# set buttons to switch modes
+		document['PythonMode'].bind('click', python_button_click)
+		document['ImageProcessingMode'].bind('click', ImageProcessing_button_click)
+		document.getElementById("PythonMode").disabled = true
+		
+		def Won():
+			document.getElementById("hint").innerHTML = "You Win!"
+			browser.timer.clear_interval(interval_)
+
+		# make a guess in either python mode or image processing mode (which is determined
+		# using the passed in choices map, either ImageProcessingChoices, or PythonChoices)
+		def MakeGuess(choices):
 			l_input = document["L_Input"].value
 			r_input = document["R_Input"].value
 			if l_input.isdigit() and r_input.isdigit() and int(l_input) > 0 and int(l_input) <= 5 and int(r_input) > 0 and int(r_input) <= 5:
@@ -75,61 +108,94 @@
 				right = document.getElementById("R_Choice"+r_input)
 				l_text = left.innerHTML
 				r_text = right.innerHTML
-				if PythonChoices[l_text] == r_text:
-					left.style.backgroundColor = "green"
-					right.style.backgroundColor = "#5C5CB5"
-					document.getElementById("hint").innerHTML = "Correct :)"
+				if choices[l_text] == r_text:
+					if left.style.backgroundColor == "green":
+						document.getElementById("hint").innerHTML = "Already Matched"
+					else:
+						left.style.backgroundColor = "green"
+						right.style.backgroundColor = "#5C5CB5"
+						document.getElementById("hint").innerHTML = "Correct :)"
+						global score_
+						score_ += 1
+						document.getElementById("score").innerHTML = "Score: "+ str(score_) + " / 5"
+						if score_ == 5:
+							Won()
 				else:
 					document.getElementById("hint").innerHTML = "Incorrect :("
 			else:
 				document.getElementById("hint").innerHTML = "Invalid Input :/"
-		
-		# make guess in image processing mode
-		def UserImageProcessingGuess(ev):
-			alert("user making choice in image processing mode")
-			# TODO
-			# MISSING (should be similar to UserPythonGuess however)
 
-		# ---------------------------------------------------------------------- >>
+		def RestartTimer():
+			global timerCount
+			timerCount = 0
+			timeDiv = document.getElementById("time").innerHTML = str(timerCount)
 
-		# set buttons to switch modes
-		document['PythonMode'].bind('click', python_button_click)
-		document['ImageProcessingMode'].bind('click', ImageProcessing_button_click)
-		document.getElementById("PythonMode").disabled = true
-		
+		def UpdateTimer():
+			global timerCount
+			timerCount += 1
+			timeDiv = document.getElementById("time").innerHTML = str(timerCount/10)
+
 		def SetUpPythonGame():
 			left_choices = list(PythonChoices.keys())
 			right_choices = list(PythonChoices.values())
 			random.shuffle(left_choices)
 			random.shuffle(right_choices)
 			for i in range(5):
-				document.getElementById("L_Choice"+str(i+1)).innerHTML = left_choices[i]
-				# ADD HERE: change background colors to original
-			for i in range(5):
-				document.getElementById("R_Choice"+str(i+1)).innerHTML = right_choices[i]
-				# Same Thing Here
-			document['EnterClick'].bind('click', UserPythonGuess)
-			document['EnterClick'].unbind('click', UserImageProcessingGuess)
-			document.getElementById("hint").innerHTML = ""
-			
-		def SetUpImageProcessingGame():
-			for i in range(5):
 				l_c = document.getElementById("L_Choice"+str(i+1))
-				l_c.innerHTML = ""
+				l_c.innerHTML = left_choices[i]
 				l_c.style.backgroundColor = "#E6FFB4"
 			for i in range(5):
 				r_c = document.getElementById("R_Choice"+str(i+1))
-				r_c.innerHTML = ""
+				r_c.innerHTML = right_choices[i]
+				r_c.style.backgroundColor = "#99ADEB"
+			document['EnterClick'].bind('click', UserPythonGuess)
+			document['EnterClick'].unbind('click', UserImageProcessingGuess)
+			document.getElementById("hint").innerHTML = ""
+			document["L_Input"].value = ""
+			document["R_Input"].value = ""
+			RestartTimer()
+			global score_
+			score_ = 0
+			document.getElementById("score").innerHTML = "Score: "+ str(score_) + " / 5"
+			document.getElementById("original_image").innerHTML = ""
+			document.getElementById("originalText").innerHTML = ""
+			global interval_
+			browser.timer.clear_interval(interval_)
+			interval_ = browser.timer.set_interval(UpdateTimer, 100)
+			
+		def SetUpImageProcessingGame():
+			left_choices = list(ImageProcessingChoices.keys())  # image transformation
+			right_choices = list(ImageProcessingChoices.values())  # image name
+			random.shuffle(left_choices)
+			random.shuffle(right_choices)
+			for i in range(5):
+				l_c = document.getElementById("L_Choice"+str(i+1))
+				l_c.innerHTML = left_choices[i]
+				l_c.style.backgroundColor = "#E6FFB4"
+			for i in range(5):
+				r_c = document.getElementById("R_Choice"+str(i+1))
+				r_c.innerHTML = right_choices[i]  ###"<img src=\""+right_choices[i]+"\">"
 				r_c.style.backgroundColor = "#99ADEB"
 			document['EnterClick'].bind('click', UserImageProcessingGuess)
 			document['EnterClick'].unbind('click', UserPythonGuess)
 			document.getElementById("hint").innerHTML = ""
-			# Missing:
+			document["L_Input"].value = ""
+			document["R_Input"].value = ""
+			RestartTimer()
+			global score_
+			score_ = 0
+			document.getElementById("score").innerHTML = "Score: "+ str(score_) + " / 5"
+			document.getElementById("original_image").innerHTML = "<img src=\"flower_original.png\">"
+			document.getElementById("originalText").innerHTML = "Original Image"
+			global interval_
+			browser.timer.clear_interval(interval_)
+			interval_ = browser.timer.set_interval(UpdateTimer, 100)
 			
 		# on start play Python Game
 		# the following is needed so that SetUpPythonGame properly unbinds it
 		document['EnterClick'].bind('click', UserImageProcessingGuess)
 		SetUpPythonGame()
+		#interval_ = browser.timer.set_interval(UpdateTimer, 100)
 		</script>
 	</body>
 </html>
