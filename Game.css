@@ -40,7 +40,7 @@ body {
 #entermatches {
 	position: absolute;
 	top: 500px;
-	left: 400px;
+	left: 405px;
 }
 
 #L_Input, #R_Input {
@@ -55,4 +55,40 @@ body {
 	position: absolute;
 	top: 570px;
 	left: 400px;
+}
+
+img {
+	display:block;
+	max-width:100%;
+	max-height:100%;
+	margin:auto;
+}
+
+#original_image {
+	position: absolute;
+	top: 130px;
+	left: 380px;
+}
+
+
+#time {
+	position: absolute;
+	top: 440px;
+	left: 440px;
+	border: solid black;
+	background-color: #AAABBB;
+	text-align: center;
+	width: 110px;
+}
+
+#score {
+	position: absolute;
+	top: 400px;
+	left: 450px;
+}
+
+#originalText {
+	position: absolute;
+	top: 120px;
+	left: 450px;
 }
