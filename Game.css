@@ -48,7 +48,8 @@ body {
 }
 
 #mode {
-	color: orange;
+	color: #D00000;
+	font-weight: bold;
 }
 
 #hint {
@@ -65,7 +66,6 @@ img {
 }
 
 #original_image {
-	position: absolute;
 	top: 130px;
 	left: 380px;
 }
@@ -90,5 +90,46 @@ img {
 #originalText {
 	position: absolute;
 	top: 120px;
-	left: 450px;
+	left: 575px;
+}
+
+#Version1 {
+	position: absolute;
+	top: 77px;
+	left: 680px;
+}
+
+#Version2 {
+	position: absolute;
+	top: 77px;
+	left: 750px;
+}
+
+#version {
+	position: absolute;
+	top: 62px;
+	left: 830px;
+	color: #D00000;
+	font-weight: bold;
+}
+
+.choiceNumber {
+	border: solid black;
+	float: right;
+	margin: -15px;
+	font-weight: bold;
+}
+
+.left {
+	border-color: green;
+	border-left: none;
+	position: absolute;
+	left: 340px;
+}
+
+.right {
+	border-color: blue;
+	border-right: none;
+	position: absolute;
+	left: 691px;
 }
