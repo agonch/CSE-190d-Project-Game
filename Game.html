@@ -1,13 +1,13 @@
 <html>
 	<head>
-		<title>Learning Game</title>
+		<title>Matching Game</title>
 		<script type="text/javascript" src="../GuessMyNumber/libs/Brython221/brython.js"></script>
 		<link href="Game.css" type="text/css" rel="stylesheet" />
 	</head>
 	<body onload="brython()">
-		<h1>Teaching Python and Image Processing</h1>
+		<h1>Matching Game: Teaching Python and Image Processing</h1>
 		<div style="margin-bottom: 10px;">
-			<fieldset style="width:600px">
+			<fieldset style="width:890px">
 				<span id="mode">Current Mode: Python</span>
 				<button id="PythonMode">Python Teaching Mode</button>
 				<button id="ImageProcessingMode">Image Processing Mode</button>
@@ -16,21 +16,31 @@
 		<div id="GameBoard">
 			<div id="LeftSide">
 				<div id="L_Choice1"></div>
+				<p class="choiceNumber left" style="top: 200px;">1</p>
 				<div id="L_Choice2"></div>
+				<p class="choiceNumber left" style="top: 380px;">2</p>
 				<div id="L_Choice3"></div>
+				<p class="choiceNumber left" style="top: 560px;">3</p>
 				<div id="L_Choice4"></div>
+				<p class="choiceNumber left" style="top: 740px;">4</p>
 				<div id="L_Choice5"></div>
+				<p class="choiceNumber left" style="top: 920px;">5</p>
 			</div>
 			<div id="RightSide">
 				<div id="R_Choice1"></div>
+				<p class="choiceNumber right" style="top: 200px;">1</p>
 				<div id="R_Choice2"></div>
+				<p class="choiceNumber right" style="top: 380px;">2</p>
 				<div id="R_Choice3"></div>
+				<p class="choiceNumber right" style="top: 560px;">3</p>
 				<div id="R_Choice4"></div>
+				<p class="choiceNumber right" style="top: 740px;">4</p>
 				<div id="R_Choice5"></div>
+				<p class="choiceNumber right" style="top: 920px;">5</p>
 			</div>
 		</div>
 		<div id="entermatches">
-			<fieldset style="width:160px">
+			<fieldset style="width:180px">
 				<div>Match Left to Right</div>
 				<input id="L_Input" maxlength="1">
 				<span>--></span>
@@ -38,6 +48,9 @@
 				<button id="EnterClick">Enter</button>
 			</fieldset>
 		</div>
+		<button id="Version1">Easy</button>
+		<button id="Version2">Hard</button>
+		<p id="version">Easy</p>
 		<div id="original_image"></div>
 		<div id="originalText"></div>
 		<div id="score">Score: 0 / 5</div>
@@ -53,14 +66,45 @@
 		interval_ = 0
 		score_ = 0
 		GameMode = "ImageProcessingMode"
-		ImageProcessingChoices = {
-					"Increase Saturation": "<img src=\"flower_increase_sat.png\">",
-					"Flip across x-axis": "<img src=\"flower_flip_x.png\">",
-					"Negative": "<img src=\"flower_neg.png\">", 
-					"Decrease Saturation": "<img src=\"flower_decrease_sat.png\">",
-					"Flip across y-axis": "<img src=\"flower_flip_y.png\">"
-					}
-		PythonChoices = {"2 + 2 * 2 + 2": "8", "true == false": "false", "false == false": "true", "3**3": "27", "16.0 / 2.0": "8.0"}
+		ImageProcessingChoices1 = {
+				"Increase Saturation": "<img src=\"flower_increase_sat.png\">",
+				"Flip across y-axis": "<img src=\"flower_flip_x.png\">",
+				"Negative": "<img src=\"flower_neg.png\">", 
+				"Decrease Saturation": "<img src=\"flower_decrease_sat.png\">",
+				"Flip across x-axis": "<img src=\"flower_flip_y.png\">"
+				}
+
+		ImageProcessingChoices2 = {
+				"Bandpass filtering": "<img src=\"face_band_pass.jpg\">",
+				"High-pass filtering": "<img src=\"face_high_pass.jpg\">",
+				"Low-pass filtering": "<img src=\"face_low_pass.jpg\">", 
+				"Narrow Bandpass filtering": "<img src=\"face_narrow_band_pass.jpg\">",
+				"No filtering": "<img src=\"face_no_filter.jpg\">"
+				}
+
+		PythonChoices1 = {
+				"2 + 2 * 2 + 2": "8",
+				"(True == True) == False": "False",
+				"(not (True or False)) == False": "True",
+				"3**2": "9",
+				"16.0 / 2.0": "8.0"
+				}
+
+		PythonChoices2 = {
+				"\"ingcod\"[2:][1:] + \"ingcod\"[-6:-3]": "'coding'",
+				"\"Misp\"[0:2] + (\"Misp\"[2]*2 + \"Misp\"[1])*2 + \"Misp\"[3]*2 + \"Misp\"[1]": "'Mississippi'",
+				"\"Miss\"[0:2] + (\"Miss\"[2]*2 + \"Miss\"[1])*2 + \"Miss\"[3]*2 + \"Miss\"[1]": "'Missississi'",
+				"\"ingcod\"[2:][1:] + \"ingcod\"[0:2]": "'codin'",
+				"\"abcde\"[::2]": "'ace'"
+				}
+
+		# can change to other version if user clicks on Version button
+		PythonChoices = PythonChoices1
+		ImageProcessingChoices = ImageProcessingChoices1
+		OriginalImage = "<img src=\"flower_original.png\">"
+		mode_ = "Python"
+		PythonBind = False
+		IPBind = False
 		
 		# ---------------- OnClick Binders ------------------------------------- >>
 		# switch to python mode
@@ -85,13 +129,45 @@
 		def UserImageProcessingGuess(ev):
 			MakeGuess(ImageProcessingChoices)
 
+		# restart game using version 1 variables
+		def SwitchToVersion1(ev):
+			document.getElementById("version").innerHTML = "Easy"
+			global PythonChoices
+			global ImageProcessingChoices
+			global OriginalImage
+			PythonChoices = PythonChoices1
+			ImageProcessingChoices = ImageProcessingChoices1
+			OriginalImage = "<img src=\"flower_original.png\">"
+			if mode_ == "Python":
+				SetUpPythonGame()
+			else:
+				SetUpImageProcessingGame()
+
+		# restart game using version 2 variables
+		def SwitchToVersion2(ev):
+			document.getElementById("version").innerHTML = "Hard"
+			global PythonChoices
+			global ImageProcessingChoices
+			global OriginalImage
+			PythonChoices = PythonChoices2
+			ImageProcessingChoices = ImageProcessingChoices2
+			OriginalImage = "<img src=\"face_original.jpg\">"
+			if mode_ == "Python":
+				SetUpPythonGame()
+			else:
+				SetUpImageProcessingGame()
+
 		# ---------------------------------------------------------------------- >>
 
 		# set buttons to switch modes
 		document['PythonMode'].bind('click', python_button_click)
 		document['ImageProcessingMode'].bind('click', ImageProcessing_button_click)
 		document.getElementById("PythonMode").disabled = true
-		
+
+		#bind versions
+		document['Version1'].bind('click', SwitchToVersion1)
+		document['Version2'].bind('click', SwitchToVersion2)
+
 		def Won():
 			document.getElementById("hint").innerHTML = "You Win!"
 			browser.timer.clear_interval(interval_)
@@ -148,8 +224,14 @@
 				r_c = document.getElementById("R_Choice"+str(i+1))
 				r_c.innerHTML = right_choices[i]
 				r_c.style.backgroundColor = "#99ADEB"
-			document['EnterClick'].bind('click', UserPythonGuess)
-			document['EnterClick'].unbind('click', UserImageProcessingGuess)
+			global IPBind
+			global PythonBind
+			if not PythonBind:
+				document['EnterClick'].bind('click', UserPythonGuess)
+				PythonBind = True
+			if IPBind:
+				document['EnterClick'].unbind('click', UserImageProcessingGuess)
+				IPBind = False
 			document.getElementById("hint").innerHTML = ""
 			document["L_Input"].value = ""
 			document["R_Input"].value = ""
@@ -162,6 +244,8 @@
 			global interval_
 			browser.timer.clear_interval(interval_)
 			interval_ = browser.timer.set_interval(UpdateTimer, 100)
+			global mode_
+			mode_ = "Python"
 			
 		def SetUpImageProcessingGame():
 			left_choices = list(ImageProcessingChoices.keys())  # image transformation
@@ -174,10 +258,16 @@
 				l_c.style.backgroundColor = "#E6FFB4"
 			for i in range(5):
 				r_c = document.getElementById("R_Choice"+str(i+1))
-				r_c.innerHTML = right_choices[i]  ###"<img src=\""+right_choices[i]+"\">"
+				r_c.innerHTML = right_choices[i]
 				r_c.style.backgroundColor = "#99ADEB"
-			document['EnterClick'].bind('click', UserImageProcessingGuess)
-			document['EnterClick'].unbind('click', UserPythonGuess)
+			global IPBind
+			global PythonBind
+			if not IPBind:
+				document['EnterClick'].bind('click', UserImageProcessingGuess)
+				IPBind = True
+			if PythonBind:
+				document['EnterClick'].unbind('click', UserPythonGuess)
+				PythonBind = False
 			document.getElementById("hint").innerHTML = ""
 			document["L_Input"].value = ""
 			document["R_Input"].value = ""
@@ -185,17 +275,21 @@
 			global score_
 			score_ = 0
 			document.getElementById("score").innerHTML = "Score: "+ str(score_) + " / 5"
-			document.getElementById("original_image").innerHTML = "<img src=\"flower_original.png\">"
-			document.getElementById("originalText").innerHTML = "Original Image"
+			global OriginalImage
+			document.getElementById("original_image").innerHTML = OriginalImage
+			document.getElementById("originalText").innerHTML = "Original<br>Image"
 			global interval_
 			browser.timer.clear_interval(interval_)
 			interval_ = browser.timer.set_interval(UpdateTimer, 100)
-			
+			global mode_
+			mode_ = "IP"
+
 		# on start play Python Game
 		# the following is needed so that SetUpPythonGame properly unbinds it
-		document['EnterClick'].bind('click', UserImageProcessingGuess)
+		#document['EnterClick'].bind('click', UserImageProcessingGuess)
 		SetUpPythonGame()
 		#interval_ = browser.timer.set_interval(UpdateTimer, 100)
+
 		</script>
 	</body>
 </html>
